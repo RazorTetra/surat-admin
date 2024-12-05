@@ -1,18 +1,24 @@
-import DangerButton from '@/Components/DangerButton';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import Modal from '@/Components/Modal';
-import SecondaryButton from '@/Components/SecondaryButton';
-import TextInput from '@/Components/TextInput';
+// resources/js/Pages/Profile/Partials/DeleteUserForm.tsx
 import { useForm } from '@inertiajs/react';
 import { FormEventHandler, useRef, useState } from 'react';
+import { Button } from "@/Components/ui/button"
+import { Input } from "@/Components/ui/input"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/Components/ui/dialog"
+import { AlertTriangle, Lock } from 'lucide-react';
 
 export default function DeleteUserForm({
     className = '',
 }: {
     className?: string;
 }) {
-    const [confirmingUserDeletion, setConfirmingUserDeletion] = useState(false);
+    const [open, setOpen] = useState(false);
     const passwordInput = useRef<HTMLInputElement>(null);
 
     const {
@@ -27,98 +33,74 @@ export default function DeleteUserForm({
         password: '',
     });
 
-    const confirmUserDeletion = () => {
-        setConfirmingUserDeletion(true);
-    };
-
     const deleteUser: FormEventHandler = (e) => {
         e.preventDefault();
 
         destroy(route('profile.destroy'), {
             preserveScroll: true,
-            onSuccess: () => closeModal(),
+            onSuccess: () => setOpen(false),
             onError: () => passwordInput.current?.focus(),
             onFinish: () => reset(),
         });
     };
 
-    const closeModal = () => {
-        setConfirmingUserDeletion(false);
-
-        clearErrors();
-        reset();
-    };
-
     return (
         <section className={`space-y-6 ${className}`}>
             <header>
-                <h2 className="text-lg font-medium text-gray-900">
-                    Delete Account
+                <h2 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                    Hapus Akun
                 </h2>
-
-                <p className="mt-1 text-sm text-gray-600">
-                    Once your account is deleted, all of its resources and data
-                    will be permanently deleted. Before deleting your account,
-                    please download any data or information that you wish to
-                    retain.
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                    Setelah akun Anda dihapus, semua sumber daya dan data akan dihapus secara permanen.
+                    Sebelum menghapus akun Anda, harap unduh data atau informasi yang ingin Anda simpan.
                 </p>
             </header>
 
-            <DangerButton onClick={confirmUserDeletion}>
-                Delete Account
-            </DangerButton>
+            <Dialog open={open} onOpenChange={setOpen}>
+                <DialogTrigger asChild>
+                    <Button variant="destructive">
+                        Hapus Akun
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            <div className="flex items-center gap-2 text-red-600">
+                                <AlertTriangle className="h-5 w-5" />
+                                Apakah Anda yakin ingin menghapus akun?
+                            </div>
+                        </DialogTitle>
+                        <DialogDescription>
+                            Setelah akun Anda dihapus, semua sumber daya dan data akan dihapus secara permanen.
+                            Silakan masukkan password Anda untuk mengkonfirmasi bahwa Anda ingin menghapus akun Anda secara permanen.
+                        </DialogDescription>
+                    </DialogHeader>
 
-            <Modal show={confirmingUserDeletion} onClose={closeModal}>
-                <form onSubmit={deleteUser} className="p-6">
-                    <h2 className="text-lg font-medium text-gray-900">
-                        Are you sure you want to delete your account?
-                    </h2>
+                    <form onSubmit={deleteUser} className="space-y-4">
+                        <div className="relative">
+                            <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-500" />
+                            <Input
+                                type="password"
+                                ref={passwordInput}
+                                value={data.password}
+                                onChange={e => setData('password', e.target.value)}
+                                className="pl-9"
+                                placeholder="Password"
+                            />
+                        </div>
+                        {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
 
-                    <p className="mt-1 text-sm text-gray-600">
-                        Once your account is deleted, all of its resources and
-                        data will be permanently deleted. Please enter your
-                        password to confirm you would like to permanently delete
-                        your account.
-                    </p>
-
-                    <div className="mt-6">
-                        <InputLabel
-                            htmlFor="password"
-                            value="Password"
-                            className="sr-only"
-                        />
-
-                        <TextInput
-                            id="password"
-                            type="password"
-                            name="password"
-                            ref={passwordInput}
-                            value={data.password}
-                            onChange={(e) =>
-                                setData('password', e.target.value)
-                            }
-                            className="mt-1 block w-3/4"
-                            isFocused
-                            placeholder="Password"
-                        />
-
-                        <InputError
-                            message={errors.password}
-                            className="mt-2"
-                        />
-                    </div>
-
-                    <div className="mt-6 flex justify-end">
-                        <SecondaryButton onClick={closeModal}>
-                            Cancel
-                        </SecondaryButton>
-
-                        <DangerButton className="ms-3" disabled={processing}>
-                            Delete Account
-                        </DangerButton>
-                    </div>
-                </form>
-            </Modal>
+                        <div className="flex justify-end gap-3">
+                            <Button variant="outline" onClick={() => setOpen(false)}>
+                                Batal
+                            </Button>
+                            <Button type="submit" variant="destructive" disabled={processing}>
+                                {processing ? 'Menghapus...' : 'Hapus Akun'}
+                            </Button>
+                        </div>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </section>
     );
 }

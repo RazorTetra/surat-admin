@@ -2,9 +2,49 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
-import { Mail, FileUp, FileDown, Clock } from 'lucide-react';
+import { Button } from '@/Components/ui/button';
+import { 
+    Mail, 
+    FileUp, 
+    FileDown, 
+    Clock, 
+    FileText, 
+    ChevronRight
+} from 'lucide-react';
+import { Link } from '@inertiajs/react';
 
 export default function Dashboard() {
+    const navigationCards = [
+        {
+            title: 'Manajemen Surat Masuk',
+            icon: FileDown,
+            description: 'Kelola semua surat masuk, disposisi, dan tindak lanjut',
+            route: 'letters.incoming.index',
+            color: 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300'
+        },
+        {
+            title: 'Manajemen Surat Keluar',
+            icon: FileUp,
+            description: 'Buat dan kelola surat keluar serta tracking status',
+            route: 'letters.outgoing.index',
+            color: 'bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300'
+        },
+        {
+            title: 'Format Surat',
+            icon: FileText,
+            description: 'Kelola template dan format surat yang tersedia',
+            route: 'letters.templates.index',
+            color: 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300'
+        },
+        {
+            title: 'Surat Pending',
+            icon: Clock,
+            description: 'Pantau surat yang memerlukan tindak lanjut',
+            route: 'letters.pending.index',
+            color: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300'
+        }
+    ];
+
     return (
         <AuthenticatedLayout
             header={
@@ -68,10 +108,40 @@ export default function Dashboard() {
                         </Card>
                     </div>
 
+                    {/* Navigation Cards */}
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                        {navigationCards.map((card) => (
+                            <Link key={card.route} href={route(card.route)}>
+                                <Card className="cursor-pointer transition-all hover:shadow-lg">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${card.color}`}>
+                                                <card.icon className="h-6 w-6" />
+                                            </div>
+                                            <ChevronRight className="h-5 w-5 text-gray-400" />
+                                        </div>
+                                        <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+                                            {card.title}
+                                        </h3>
+                                        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                            {card.description}
+                                        </p>
+                                    </CardContent>
+                                </Card>
+                            </Link>
+                        ))}
+                    </div>
+
                     {/* Recent Letters */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Surat Terbaru</CardTitle>
+                            <div className="flex items-center justify-between">
+                                <CardTitle>Surat Terbaru</CardTitle>
+                                <Button variant="ghost" className="flex items-center gap-2">
+                                    Lihat Semua
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
                         </CardHeader>
                         <CardContent>
                             <div className="divide-y divide-gray-200 dark:divide-gray-700">
